@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCSS - Analytics</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">
+                <span class="logo-title">MCSS</span>
+                <span class="logo-subtitle">Marks Calculation & Student Statistics</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="analytics.html" class="active">Analytics</a></li>
+            <li><a href="admin.html">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button class="btn-icon" id="theme-toggle" onclick="ThemeManager.toggle()" title="Toggle Theme">☀️</button>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <h1 style="font-size: 1.8rem; margin-bottom: 2rem; color: var(--gold);">
+                📊 Advanced Analytics
+            </h1>
+
+            <!-- Class Comparison Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Class Comparison - Average Marks</div>
+                <div class="chart-wrapper">
+                    <canvas id="class-comparison-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Subject Performance & Rank Distribution -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <!-- Subject Performance -->
+                <div class="chart-container">
+                    <div class="chart-title">Subject Performance</div>
+                    <div class="chart-wrapper">
+                        <canvas id="subject-performance-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Rank Distribution -->
+                <div class="chart-container">
+                    <div class="chart-title">Rank Distribution</div>
+                    <div class="chart-wrapper">
+                        <canvas id="rank-distribution-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Comparison -->
+            <div class="chart-container">
+                <div class="chart-title">Physical Science vs Bio Science</div>
+                <div class="chart-wrapper">
+                    <canvas id="section-comparison-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/analytics.js"></script>
+</body>
+</html>

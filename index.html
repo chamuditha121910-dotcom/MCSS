@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCSS - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">
+                <span class="logo-title">MCSS</span>
+                <span class="logo-subtitle">Marks Calculation & Student Statistics</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Dashboard</a></li>
+            <li><a href="analytics.html">Analytics</a></li>
+            <li><a href="admin.html">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button class="btn-icon" id="theme-toggle" onclick="ThemeManager.toggle()" title="Toggle Theme">☀️</button>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-bar" id="student-search" 
+                       placeholder="Search students by name or class...">
+                <div class="search-suggestions" id="search-suggestions"></div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid" id="stats-container">
+                <div class="loading-spinner" style="grid-column: 1 / -1;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Top Rankers Section -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+                <!-- Physical Science Top Rankers -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="title-icon"></span>
+                        Top Physical Science Students
+                    </h2>
+                    <div class="rankers-grid" id="physical-rankers">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bio Science Top Rankers -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="title-icon"></span>
+                        Top Bio Science Students
+                    </h2>
+                    <div class="rankers-grid" id="bio-rankers">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Students -->
+            <h2 class="section-title">
+                <span class="title-icon"></span>
+                All Students
+            </h2>
+            <div class="students-grid" id="students-grid">
+                <div class="loading-spinner" style="grid-column: 1 / -1;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mark Entry Modal (Hidden Shortcut) -->
+    <div class="modal-overlay" id="mark-entry-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Marks Entry</h2>
+                <button class="modal-close" onclick="dashboardController.closeMarkEntryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="mark-entry-form">
+                    <input type="hidden" id="mark-student-id">
+
+                    <div class="form-group">
+                        <label class="form-label">Student Name</label>
+                        <input type="text" class="form-input" id="mark-student-name" 
+                               name="studentName" placeholder="Type student name..." required autocomplete="off">
+                        <div class="search-suggestions" id="name-suggestions" style="position: relative; top: 0;"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Class</label>
+                            <select class="form-select" id="mark-class" name="class" required>
+                                <option value="">Select Class</option>
+                                <option value="M1">M1</option>
+                                <option value="M2">M2</option>
+                                <option value="M3">M3</option>
+                                <option value="M4">M4</option>
+                                <option value="ME">ME</option>
+                                <option value="B1">B1</option>
+                                <option value="B2">B2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Section</label>
+                            <input type="text" class="form-input" id="mark-section" readonly placeholder="Auto-detected">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Term</label>
+                        <select class="form-select" name="term" required>
+                            <option value="">Select Term</option>
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Term 3">Term 3</option>
+                        </select>
+                    </div>
+
+                    <div class="marks-grid" id="mark-subjects">
+                        <div class="form-group">
+                            <label class="form-label">Select a class first to see subjects</label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="dashboardController.closeMarkEntryModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Marks</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shortcut Hint -->
+    <div class="shortcut-hint">
+        <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">A</span> + <span class="kbd">M</span> for Mark Entry
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

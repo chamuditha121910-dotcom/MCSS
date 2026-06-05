@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCSS - Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">
+                <span class="logo-title">MCSS</span>
+                <span class="logo-subtitle">Marks Calculation & Student Statistics</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="analytics.html">Analytics</a></li>
+            <li><a href="admin.html" class="active">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button class="btn-icon" id="theme-toggle" onclick="ThemeManager.toggle()" title="Toggle Theme">☀️</button>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <h1 style="font-size: 1.8rem; margin-bottom: 2rem; color: var(--gold);">
+                ⚙️ Admin Panel
+            </h1>
+
+            <!-- Admin Cards Grid -->
+            <div class="admin-grid" id="admin-grid">
+                <div class="loading-spinner" style="grid-column: 1 / -1;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Student Modal -->
+    <div class="modal-overlay" id="add-student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Student</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-student-form">
+                    <div class="form-group">
+                        <label class="form-label">Student Name</label>
+                        <input type="text" class="form-input" name="name" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <select class="form-select" name="class" required>
+                            <option value="">Select Class</option>
+                            <option value="M1">M1</option>
+                            <option value="M2">M2</option>
+                            <option value="M3">M3</option>
+                            <option value="M4">M4</option>
+                            <option value="ME">ME</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Marks Modal -->
+    <div class="modal-overlay" id="add-marks-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Marks Entry</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-marks-form">
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <select class="form-select" id="admin-mark-class" name="class" required>
+                            <option value="">Select Class</option>
+                            <option value="M1">M1</option>
+                            <option value="M2">M2</option>
+                            <option value="M3">M3</option>
+                            <option value="M4">M4</option>
+                            <option value="ME">ME</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Student</label>
+                        <select class="form-select" id="admin-mark-student" name="student" required>
+                            <option value="">Select Class First</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Term</label>
+                        <select class="form-select" name="term" required>
+                            <option value="">Select Term</option>
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Term 3">Term 3</option>
+                        </select>
+                    </div>
+                    <div id="admin-mark-subjects">
+                        <div class="form-group">
+                            <label class="form-label">Select a class first to see subjects</label>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Marks</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Marks Modal -->
+    <div class="modal-overlay" id="manage-marks-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Manage Marks</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body" id="marks-table-container">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Students Modal -->
+    <div class="modal-overlay" id="manage-students-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Manage Students</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body" id="students-table-container">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal-overlay" id="backup-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Backup Database</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Export all data as a JSON backup file. You can restore this data later.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button class="btn btn-primary btn-block" id="btn-export-json">
+                        📥 Download JSON
+                    </button>
+                    <button class="btn btn-secondary btn-block modal-cancel">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div class="modal-overlay" id="reset-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" style="color: #ef4444;">⚠️ Reset All Data</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #f87171; margin-bottom: 1rem; font-weight: 500;">
+                    WARNING: This action cannot be undone!
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    All students, marks, and rankings will be permanently deleted. Make sure you have a backup before proceeding.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button class="btn btn-secondary btn-block modal-cancel">
+                        Cancel
+                    </button>
+                    <button class="btn btn-danger btn-block" id="confirm-reset">
+                        Reset Everything
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="export-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Export Reports</h2>
+                <button class="modal-close modal-cancel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Generate and download reports in your preferred format.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <button class="btn btn-primary btn-block" id="btn-export-excel">
+                        📊 Export CSV
+                    </button>
+                    <button class="btn btn-primary btn-block" id="btn-export-pdf">
+                        📄 Export PDF
+                    </button>
+                </div>
+                <button class="btn btn-secondary btn-block modal-cancel">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
